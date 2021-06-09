@@ -2,12 +2,31 @@
 .login-form{
   position: relative;
   width: 30%;
-  margin-left: 30%;
-  margin-top: 10%;
+  margin:0 auto;
 }
 .login-btn{
   width: 50%;
 }
 .logo{
   width:100%;
+}
+.dashboard{
+  width:80%;
+  margin:0 auto;
+}
+.dashboard .user_details{
+  margin: 10px;
+}
+.dashboard .user_details a{
+  color: brown;
+}
+.patient_search{
+  margin:10px;
+  padding:10px;
+  border:1px solid rgba(10, 63, 143, 0.397);
+}
+.create_patient{
+  margin: 10px;
+  padding:10px;
+  border:1px solid rgba(10, 63, 143, 0.397);
 }

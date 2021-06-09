@@ -3,6 +3,7 @@ import { RadioButton } from 'carbon-components-react/lib/components/RadioButton/
 function Dashboard(){
   return(
     <div className="dashboard">
+        <p className="user_details">You are logged in as <a className="logout" href="logout">Logout</a></p>
         <PatientSearch/>
         <CreatePatient/>
     </div>
