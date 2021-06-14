@@ -1,12 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
+import { Redirect, Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 
 import './index.css';
-import Login from './pages/login';
-import Dashboard from './pages/dashboard';
+import Login from './Pages/Login/login';
+import Dashboard from './Pages/Dashboard/dashboard';
+import NotFound from './Constants/notFound';
+
+const routes = (
+  <Router>
+    <Switch>
+      <Route exact path='/' component={Login} />
+      <Route path='/dashboard' component={Dashboard} />
+      <Route component={NotFound} />
+    </Switch>
+  </Router>
+)
 
 ReactDOM.render(
-    <><Login /> <Dashboard/></>,
+  routes,
   document.getElementById('root')
 );
