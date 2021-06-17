@@ -1,19 +1,32 @@
 import axios from "axios";
-const session = sessionStorage.getItem("session-id");
-const url="";
-const session_id=sessionStorage.getItem("session-id");
+const url = "http://10.50.80.115:8090/amrs/ws/rest/v1/";
+const session_id = sessionStorage.getItem("session-id");
 
-const GetPatient = (value) => {
-    return axios.get(url, {
-        headers: {
-            Cookie: `JSESSIONID=${session_id}`
-        }
-    }).then(resp => {
-        let response = resp.data;
-        return response;
-    }).catch(error => {
-        return error.message;
-    })
+const GetPatient = async (value) => {
+    try{
+        const result=await axios.get(`${url}patient?q=${value}&v=default&limit=10`, {
+            headers: {
+                Authorization: `Basic ${session_id}`
+            }
+        });
+        return result.data.results;
+    }catch(error){
+        console.log(error.message)
+    }
+}
+
+const listEncounters = async (uuid) => {
+    try{
+        const result=await axios.get(`${url}encounter?patient=${uuid}`, {
+            headers: {
+                Authorization: `Basic ${session_id}`
+            }
+        });
+        return result.data.results;
+    }catch(error){
+        console.log(error);
+    }
+
 }
 
 const AddPatient = (value) => {
@@ -29,4 +42,4 @@ const AddPatient = (value) => {
     })
 }
 
-export {GetPatient, AddPatient}
+export { GetPatient, AddPatient, listEncounters}

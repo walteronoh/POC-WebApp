@@ -9,6 +9,7 @@ import NotFound from './Constants/notFound';
 
 const routes = (
   <Router>
+    {/* {sessionStorage.getItem("username") !== null ? <Redirect to='/dashboard'/> : <Redirect to='/' />} */}
     <Switch>
       <Route exact path='/' component={Login} />
       <Route path='/dashboard' component={Dashboard} />

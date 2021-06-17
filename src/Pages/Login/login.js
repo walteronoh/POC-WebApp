@@ -3,7 +3,7 @@ import { Button, FormGroup, TextInput } from 'carbon-components-react';
 import { useState } from 'react';
 import React from 'react';
 
-import GetUser from './login-resource';
+import getUser from './login-resource';
 import { useHistory } from 'react-router-dom';
 
 
@@ -24,7 +24,7 @@ function Login() {
     if (username === '' || pass === '') {
       setErrors(errors.emptyErr);
     } else {
-      const result = GetUser(username, pass);
+      const result = getUser(username, pass);
       result.then(resp => {
         let authorized = resp.authenticated;
         if (authorized === false) {
@@ -32,8 +32,11 @@ function Login() {
         } else {
           setErrors("");
           path.push('/dashboard');
-          sessionStorage.setItem("username", username);
+          sessionStorage.setItem("username", resp.user.username);
+          sessionStorage.setItem("session-id", btoa(`${username}:${pass}`));
         }
+      }).catch(error => {
+        console.log(error.message)
       })
     }
   }
