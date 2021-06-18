@@ -1,0 +1,36 @@
+.bg-img{
+    position: absolute;
+    transform: translate(40%,100%);
+    opacity: .07;
+    width: 50%;
+}
+.dashboard {
+    width: 90%;
+    margin: 0 auto;
+}
+
+.nav-bar{
+    display: flex;
+    justify-content: space-evenly;
+    border-bottom: 1px solid #ccc;
+    padding: 20px;
+}
+.nav-bar .search, .create{
+    font-size: 1.2em;
+    text-decoration: none;
+    border:1px solid #ccc;
+    padding:10px;
+    border-radius: 10px;
+}
+.dashboard .user_details {
+    justify-content: flex-end;
+}
+
+.dashboard .user_details a {
+    color: brown;
+}
+
+.error {
+    color: tomato;
+}
+

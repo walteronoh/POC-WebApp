@@ -1,32 +1,33 @@
-import { Link, NavLink, Route, Redirect, useHistory } from 'react-router-dom';
+import { NavLink, Redirect, Route, useHistory } from 'react-router-dom';
 import PatientSearch from './Search/search';
 import CreatePatient from './Create/create';
 import './dashboard.css';
-import displayEncounter from './Search/encounter';
+import logo from '../Login/icon/openmrs.png';
 
-const username=sessionStorage.getItem("username");
-
-const bg={
-  color:"green"
+const bg = {
+  backgroundColor: "#ccc"
 }
 
-function Dashboard(){
+function Dashboard() {
+  const username = sessionStorage.getItem("username");
   const path=useHistory();
-  const Logout = () =>{
-    sessionStorage.removeItem("username");
-    sessionStorage.removeItem("session-id");
-    path.push("/")
+  const logout=(e)=>{
+    path.push('/');
+    sessionStorage.removeItem("username")
+    sessionStorage.removeItem("session-id")
   }
 
-  return(
+  return (
     <div className="dashboard">
-        <p className="user_details">Welcome {username} <a className="logout" onClick={Logout} href="#">Logout</a></p>
-            <NavLink to="/dashboard/search" activeStyle={bg}>Search Patient</NavLink>
-            <NavLink to="/dashboard/create-patient" activeStyle={bg}>Create Patient</NavLink>
-            <Route exact path='/dashboard/search' component={PatientSearch} />
-            <Route path='/dashboard/create-patient' component={CreatePatient} />
-            <Route path='/dashboard/encounter' component={displayEncounter} />
-      
+      <img className="bg-img" src={logo}/>
+      <div className="nav-bar">
+        <NavLink className="search" to="/dashboard/search" activeStyle={bg}>Search Patient</NavLink>
+        <NavLink className="create" to="/dashboard/create-patient" activeStyle={bg}>Create Patient</NavLink>
+        <p className="user_details">Welcome {username} <a className="logout" onClick={logout} href="#">Logout</a></p>
+      </div>
+
+      <Route exact path='/dashboard/search' component={PatientSearch} />
+      <Route path='/dashboard/create-patient' component={CreatePatient} />
     </div>
   )
 }

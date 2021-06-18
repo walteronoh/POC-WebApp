@@ -31,9 +31,9 @@ function Login() {
           setErrors(errors.loginErr)
         } else {
           setErrors("");
-          path.push('/dashboard');
           sessionStorage.setItem("username", resp.user.username);
           sessionStorage.setItem("session-id", btoa(`${username}:${pass}`));
+          path.push('/dashboard');
         }
       }).catch(error => {
         console.log(error.message)

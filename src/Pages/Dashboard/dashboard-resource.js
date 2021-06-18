@@ -1,8 +1,8 @@
 import axios from "axios";
 const url = "http://10.50.80.115:8090/amrs/ws/rest/v1/";
-const session_id = sessionStorage.getItem("session-id");
 
 const GetPatient = async (value) => {
+    const session_id = sessionStorage.getItem("session-id");
     try{
         const result=await axios.get(`${url}patient?q=${value}&v=default&limit=10`, {
             headers: {
@@ -16,6 +16,7 @@ const GetPatient = async (value) => {
 }
 
 const listEncounters = async (uuid) => {
+    const session_id = sessionStorage.getItem("session-id");
     try{
         const result=await axios.get(`${url}encounter?patient=${uuid}`, {
             headers: {
@@ -30,6 +31,7 @@ const listEncounters = async (uuid) => {
 }
 
 const AddPatient = (value) => {
+    const session_id = sessionStorage.getItem("session-id");
     return axios.post(url, {
         headers: {
             Cookie: `JSESSIONID=${session_id}`

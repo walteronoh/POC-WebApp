@@ -2,7 +2,6 @@ import { Button, FormGroup, Modal, Pagination, Search, Table, TableBody, TableCe
 import { useState } from 'react';
 import { GetPatient, listEncounters } from '../dashboard-resource';
 import './search.css';
-import displayEncounter from './encounter';
 import ReactDOM from 'react-dom';
 
 
@@ -12,7 +11,7 @@ function PatientSearch() {
     const [input, setInput] = useState("");
     const [encounters, setEncounters] = useState([]);
     const [disp_encounter, dispEncounter] = useState(false);
-    const [open,setOpen]=useState(true);
+    const [open, setOpen] = useState(true);
 
     const handleSearch = (e) => {
         setInput(e.target.value);
@@ -40,7 +39,8 @@ function PatientSearch() {
         }
     }
 
-
+    const [firstRowIndex, setFirstRowIndex] = useState(0);
+    const [currentPageSize, setCurrentPageSize] = useState(5);
     const displayPatient = () => {
         const headers = ['Identifier', 'Display', 'Gender', 'Age', 'Birthdate', 'Dead', 'Death Date'];
         return (
@@ -54,7 +54,7 @@ function PatientSearch() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.map((row) => (
+                        {rows.slice(firstRowIndex, firstRowIndex + currentPageSize).map((row) => (
                             <TableRow key={row.id}>
                                 {Object.keys(row)
                                     .filter((key) => key !== 'id')
@@ -71,7 +71,7 @@ function PatientSearch() {
                     itemsPerPageText="Items per page:"
                     page={1}
                     pageNumberText="Page Number"
-                    pageSize={10}
+                    pageSize={currentPageSize}
                     pageSizes={[
                         5,
                         10,
@@ -80,6 +80,12 @@ function PatientSearch() {
                         100
                     ]}
                     totalItems={rows.length}
+                    onChange={({ page, pageSize }) => {
+                        if (pageSize !== currentPageSize) {
+                            setCurrentPageSize(pageSize);
+                        }
+                        setFirstRowIndex(pageSize * (page - 1));
+                    }}
                 />
             </div>
         )
@@ -101,12 +107,65 @@ function PatientSearch() {
                         display: resp[i].display
                     })
                 }
-                setEncounters(data);
+                setEncounters(data.reverse());
                 dispEncounter(true);
             }
         }).catch(error => {
             console.log(error)
         })
+    }
+
+    const [rowOneIndex, setRowOneIndex] = useState(0);
+    const [encounterPageSize, setEncounterPageSize] = useState(5);
+    const displayEncounter = () => {
+        const headers=["Identifier","Display"];
+        return (
+            <div>
+                <h2>Patient Encounters</h2>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            {headers.map((header) => (
+                                <TableHeader key={header}>{header}</TableHeader>
+                            ))}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {encounters.slice(rowOneIndex, rowOneIndex + encounterPageSize).map((row) => (
+                            <TableRow key={row.id}>
+                                {Object.keys(row)
+                                    .filter((key) => key !== 'id')
+                                    .map((key) => {
+                                        return <TableCell key={key} >{row[key]}</TableCell>;
+                                    })}
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                <Pagination
+                    backwardText="Previous page"
+                    forwardText="Next page"
+                    itemsPerPageText="Items per page:"
+                    page={1}
+                    pageNumberText="Page Number"
+                    pageSize={encounterPageSize}
+                    pageSizes={[
+                        5,
+                        10,
+                        25,
+                        50,
+                        100
+                    ]}
+                    totalItems={encounters.length}
+                    onChange={({ page, pageSize }) => {
+                        if (pageSize !== encounterPageSize) {
+                            setEncounterPageSize(pageSize);
+                        }
+                        setRowOneIndex(pageSize * (page - 1));
+                    }}
+                />
+            </div>
+        )
     }
 
     return (
@@ -121,12 +180,12 @@ function PatientSearch() {
             }
             {
                 disp_encounter &&
-                        <Modal
-                            passiveModal
-                            open={open}
-                            onRequestClose={() => setOpen(false)}>
-                                {displayEncounter(encounters)}       
-                        </Modal>
+                <Modal
+                    passiveModal
+                    open={open}
+                    onRequestClose={() => {setOpen(false); setRowOneIndex(0);}}>
+                    {displayEncounter()}
+                </Modal>
             }
         </div>
     )

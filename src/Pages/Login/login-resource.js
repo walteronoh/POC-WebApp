@@ -9,7 +9,7 @@ async function getUser(user, pass) {
         Authorization: `Basic ${token}`
       }
     });
-    return result;
+    return result.data;
   }catch(error){
     console.log(error)
   }
