@@ -4,7 +4,7 @@ const url = "http://10.50.80.115:8090/amrs/ws/rest/v1/";
 const GetPatient = async (value) => {
     const session_id = sessionStorage.getItem("session-id");
     try{
-        const result=await axios.get(`${url}patient?q=${value}&v=default&limit=10`, {
+        const result=await axios.get(`${url}patient?q=${value}&v=full&limit=10`, {
             headers: {
                 Authorization: `Basic ${session_id}`
             }
@@ -18,7 +18,7 @@ const GetPatient = async (value) => {
 const listEncounters = async (uuid) => {
     const session_id = sessionStorage.getItem("session-id");
     try{
-        const result=await axios.get(`${url}encounter?patient=${uuid}`, {
+        const result=await axios.get(`${url}encounter?patient=${uuid}&v=full`, {
             headers: {
                 Authorization: `Basic ${session_id}`
             }
