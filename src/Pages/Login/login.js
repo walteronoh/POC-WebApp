@@ -17,7 +17,6 @@ function Login() {
   const [username, setUsername] = useState("");
   const [pass, setPassword] = useState("");
   const [error, setErrors] = useState("");
-  const [enable, setEnable] = useState(true);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -41,34 +40,25 @@ function Login() {
     }
   }
 
-  const check_state = () => {
-    if (username === '' || pass === '') {
-      setEnable(true)
-    } else {
-      setEnable(false)
-    }
-  }
-
   const handleUsernameChange = (e) => {
     setUsername(e.target.value.trim());
-    check_state()
   }
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value.trim());
-    check_state()
   }
+
 
   return (
     <div className="login-form">
       <img className="logo" alt="Logo" src={logo} />
       <form onSubmit={handleSubmit}>
-        <FormGroup>
+        <FormGroup legendText="">
           <TextInput placeholder="Username" onChange={handleUsernameChange} name="username" id="username" type="text" labelText="Username"></TextInput>
           <TextInput placeholder="Password" onChange={handlePasswordChange} name="pass" id="pass" type="password" labelText="Password"></TextInput>
         </FormGroup>
         <p className="error">{error}</p>
-        <Button className="login-btn" type="submit" disabled={enable}>Login</Button>
+        <Button className="login-btn" type="submit" disabled={username && pass ? false : true}>Login</Button>
       </form>
     </div>
   );

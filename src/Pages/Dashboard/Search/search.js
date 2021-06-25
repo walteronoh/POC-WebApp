@@ -1,8 +1,7 @@
-import { Button, FormGroup, Modal, Pagination, Search, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'carbon-components-react';
+import { FormGroup, Modal, Pagination, Search, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'carbon-components-react';
 import { useState } from 'react';
 import { GetPatient, listEncounters } from '../dashboard-resource';
 import './search.css';
-import ReactDOM from 'react-dom';
 
 
 function PatientSearch() {
@@ -12,39 +11,46 @@ function PatientSearch() {
     const [encounters, setEncounters] = useState([]);
     const [disp_encounter, dispEncounter] = useState(false);
     const [open, setOpen] = useState(true);
-    const [obsStatus, setObsStatus] =useState(false);
+    const [obsStatus, setObsStatus] = useState(false);
     const [obsRows, setObsRows] = useState([]);
     const [error, setError] = useState();
 
     const handleSearch = (e) => {
         setInput(e.target.value);
-        if (input.length >= 2) {
+        if (input.length > 2) {
             const result = GetPatient(input);
             result.then(resp => {
-                resp ? setResponse(true) : setResponse();
-                let data = [];
-                for (let i = 0; i < resp.length; i++) {
-                    let check_identifier = setIdentifier(resp[i].identifiers);
-                    data.push({
-                        id: i,
-                        identifier: check_identifier,
-                        uuid: resp[i].person.uuid,
-                        display: resp[i].person.display,
-                        gender: resp[i].person.gender,
-                        age: resp[i].person.age,
-                        birthdate: resp[i].person.birthdate,
-                        dead: resp[i].person.dead,
-                        deadDate: resp[i].person.deathDate
+                if(resp.length > 0){
+                    setResponse(true)
+                    let data = [];
+                    resp.forEach(response => {
+                        let check_identifier = checkIdentifier(response.identifiers);
+                        response = response.person;
+                        let new_birthdate = response.birthdate.split("T")[0];
+                        data.push({
+                            id: response.uuid,
+                            identifier: check_identifier,
+                            uuid: response.uuid,
+                            display: response.display,
+                            gender: response.gender,
+                            age: response.age,
+                            birthdate: new_birthdate
+                        })
                     })
+                    setError()
+                    setRows(data)
+                }else{
+                    setError("No user found");
                 }
-                setRows(data)
             }).catch(error => {
                 console.log(error.message);
             })
+        }else{
+            setResponse()
         }
     }
 
-    const setIdentifier = (value) => {
+    const checkIdentifier = (value) => {
         if (value.length === 0) {
             return "No Identifier"
         }
@@ -56,7 +62,7 @@ function PatientSearch() {
     const [firstRowIndex, setFirstRowIndex] = useState(0);
     const [currentPageSize, setCurrentPageSize] = useState(5);
     const displayPatient = () => {
-        const headers = ['Identifier', 'UUID', 'Name', 'Gender', 'Age', 'Birthdate', 'Dead', 'Death Date'];
+        const headers = ['Identifier', 'UUID', 'Name', 'Gender', 'Age', 'Birthdate'];
         return (
             <div>
                 <Table>
@@ -115,23 +121,25 @@ function PatientSearch() {
                 setOpen(true);
                 let data = [];
                 let obs = [];
-                for (let i = 0; i < resp.length; i++) {
+                resp.forEach(response => {
+                    let encounterTime = response.encounterDatetime.split("T")[0]
                     data.push({
-                        id: i,
-                        date: resp[i].encounterDatetime,
-                        type: resp[i].encounterType.display
+                        id: response.uuid,
+                        date: encounterTime,
+                        type: response.encounterType.display
                     })
-                    for(let k=0; k<resp[i].obs.length; k++){
+
+                    response.obs.forEach(element => {
+                        let obsTime = element.obsDatetime.split("T")[0];
                         obs.push({
-                            id:k,
-                            date:resp[i].obs[k].obsDatetime,
-                            display:resp[i].obs[k].display,
-                            concept:resp[i].obs[k].concept.display,
-                            // value:resp[i].obs[k].value,
+                            id: element.uuid,
+                            date: obsTime,
+                            concept: element.concept.display,
+                            value: processObsValue(element.value)
                             // valueCoded:resp[i].obs[k].valueCodedName
                         })
-                    }
-                }
+                    })
+                })
                 setObsRows(obs.reverse());
                 setEncounters(data.reverse());
                 dispEncounter(true);
@@ -139,6 +147,16 @@ function PatientSearch() {
         }).catch(error => {
             console.log(error)
         })
+    }
+
+    const processObsValue = (value) => {
+        if (value) {
+            if (typeof (value) === 'string' || typeof (value) === 'number') {
+                return value
+            }
+            return value.display
+        }
+        return ''
     }
 
     const [rowOneIndex, setRowOneIndex] = useState(0);
@@ -194,18 +212,18 @@ function PatientSearch() {
         )
     }
 
-    const [sortedObs,setSortedObs]=useState([]);
+    const [sortedObs, setSortedObs] = useState([]);
     const [obsRowIndex, setObsRowIndex] = useState(0);
     const [obsPageSize, setObsPageSize] = useState(5);
-    const displayObs = () =>{
-        const headers=["Date","Obs Name","Concept","Value","Value Coded Name"];
+    const displayObs = () => {
+        const headers = ["Date", "Concept", "Value", "Value Coded Name"];
         return (
             <div>
                 <h3>Observations</h3>
                 <Table>
                     <TableHead>
                         <TableRow>
-                            {headers.map((header)=>(
+                            {headers.map((header) => (
                                 <TableHeader key={header}>{header}</TableHeader>
                             ))}
                         </TableRow>
@@ -248,18 +266,18 @@ function PatientSearch() {
         )
     }
 
-    const checkEncounterType=(e)=>{
-        let date=e.target.attributes.getNamedItem('data-date').value;
-        let new_obs=obsRows.filter(key=>key.date == date);
+    const checkEncounterType = (e) => {
+        let date = e.target.attributes.getNamedItem('data-date').value;
+        let new_obs = obsRows.filter(key => key.date.split("T")[0] === date);
         setSortedObs(new_obs);
-        setObsStatus(true); 
+        setObsStatus(true);
     }
 
     return (
         <div className="patient_search">
             <p className="error">{error}</p>
             <FormGroup legendText="Search Patient">
-                <Search placeholder="md" id="search-1" type="text" onChange={handleSearch}></Search>
+                <Search id="search-1" type="text" onChange={handleSearch} labelText=""></Search>
             </FormGroup>
             {
                 response &&
@@ -269,18 +287,21 @@ function PatientSearch() {
             {
                 disp_encounter &&
                 <>
-                <Modal
-                    passiveModal
-                    open={open}
-                    onRequestClose={() => { setOpen(false); setRowOneIndex(0); }}>
-                    {displayEncounter()}
-                </Modal>
-                <Modal
-                passiveModal
-                open={obsStatus}
-                onRequestClose={() => { setObsStatus(false); setRowOneIndex(0); }}>
-                    {displayObs()}
-                </Modal>
+                    <Modal
+                        size='lg'
+                        preventCloseOnClickOutside
+                        passiveModal
+                        open={open}
+                        onRequestClose={() => { setOpen(false); setRowOneIndex(0); }}>
+                        {displayEncounter()}
+                    </Modal>
+                    <Modal
+                    size='lg'
+                        passiveModal
+                        open={obsStatus}
+                        onRequestClose={() => { setObsStatus(false); setRowOneIndex(0); }}>
+                        {displayObs()}
+                    </Modal>
                 </>
             }
         </div>
