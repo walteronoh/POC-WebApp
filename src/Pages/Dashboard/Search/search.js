@@ -20,7 +20,7 @@ function PatientSearch() {
         if (input.length > 2) {
             const result = GetPatient(input);
             result.then(resp => {
-                if(resp.length > 0){
+                if (resp.length > 0) {
                     setResponse(true)
                     let data = [];
                     resp.forEach(response => {
@@ -39,13 +39,13 @@ function PatientSearch() {
                     })
                     setError()
                     setRows(data)
-                }else{
+                } else {
                     setError("No user found");
                 }
             }).catch(error => {
                 console.log(error.message);
             })
-        }else{
+        } else {
             setResponse()
         }
     }
@@ -136,7 +136,6 @@ function PatientSearch() {
                             date: obsTime,
                             concept: element.concept.display,
                             value: processObsValue(element.value)
-                            // valueCoded:resp[i].obs[k].valueCodedName
                         })
                     })
                 })
@@ -216,7 +215,7 @@ function PatientSearch() {
     const [obsRowIndex, setObsRowIndex] = useState(0);
     const [obsPageSize, setObsPageSize] = useState(5);
     const displayObs = () => {
-        const headers = ["Date", "Concept", "Value", "Value Coded Name"];
+        const headers = ["Date", "Concept", "Value"];
         return (
             <div>
                 <h3>Observations</h3>
@@ -296,7 +295,8 @@ function PatientSearch() {
                         {displayEncounter()}
                     </Modal>
                     <Modal
-                    size='lg'
+                        size='lg'
+                        preventCloseOnClickOutside
                         passiveModal
                         open={obsStatus}
                         onRequestClose={() => { setObsStatus(false); setRowOneIndex(0); }}>

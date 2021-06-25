@@ -12,7 +12,3 @@ test('Testing Session-Id Session Storage', () =>{
   expect(session_id).toBeNull();
 })
 
-test('Testing  Username Session Storage after login in', ()=>{
-  render(<PatientSearch/>);
-  
-})

@@ -20,6 +20,7 @@ function CreatePatient() {
     const [uuid, setUuid] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [submitButton, setSubmitStatus] = useState(false);
 
     const checkPersonExistence = (e) => {
         e.preventDefault();
@@ -160,7 +161,7 @@ function CreatePatient() {
                     <SelectItem text="Choose Identifier Location" />
                     <SelectItem value="Location-1" text="Location-1" />
                 </Select>
-                <Button type="submit">Add Patient</Button>
+                <Button type="submit" disabled={submitButton}>Add Patient</Button>
                 <p className="success">{success}</p>
             </>
         )
@@ -198,8 +199,10 @@ function CreatePatient() {
             const add_patient = addPatient(data, identifiers, uuid);
             add_patient.then(response => {
                 if (response.status === 201) {
+                    setSubmitStatus(true);
                     setSuccess("Patient Has Been Added")
                     setTimeout(() => {
+                        setSubmitStatus(false)
                         setShowInput(false);
                         setCheckButtonStatus(true)
                         setSuccess("")
