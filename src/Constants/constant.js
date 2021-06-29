@@ -6,6 +6,6 @@ const DateFormat = (datetime) => {
     return [yy, (mm < 10 ? "0" : "") + mm, (dd < 10 ? "0" : "") + dd].join('-')
 }
 
-const baseURL= "http://10.50.80.115:8090/amrs/ws/rest/v1/";
+const baseURL ="https://kibana.ampath.or.ke/amrs/ws/rest/v1/";
 
 export {DateFormat, baseURL};
