@@ -1,15 +1,16 @@
 import axios from "axios";
-const url = "http://10.50.80.115:8090/amrs/ws/rest/v1/";
-//const url ="https://kibana.ampath.or.ke/amrs/ws/rest/v1/";
+import { baseURL } from "../../Constants/constant";
+const session_id = sessionStorage.getItem("session-id");
+let header = {
+    headers: {
+        Authorization: `Basic ${session_id}`,
+        "Content-Type": "application/json",
+    }
+}
 
 const GetPatient = async (value) => {
-    const session_id = sessionStorage.getItem("session-id");
     try {
-        const result = await axios.get(`${url}patient?q=${value}&v=full&limit=10`, {
-            headers: {
-                Authorization: `Basic ${session_id}`
-            }
-        });
+        const result = await axios.get(`${baseURL}patient?q=${value}&v=full&limit=10`, header);
         return result.data.results;
     } catch (error) {
         console.log(error.message)
@@ -17,13 +18,8 @@ const GetPatient = async (value) => {
 }
 
 const listEncounters = async (uuid) => {
-    const session_id = sessionStorage.getItem("session-id");
     try {
-        const result = await axios.get(`${url}encounter?patient=${uuid}&v=full`, {
-            headers: {
-                Authorization: `Basic ${session_id}`
-            }
-        });
+        const result = await axios.get(`${baseURL}encounter?patient=${uuid}&v=full`, header);
         return result.data.results;
     } catch (error) {
         console.log(error);
@@ -32,27 +28,8 @@ const listEncounters = async (uuid) => {
 }
 
 const checkPerson = async (value) => {
-    const session_id = sessionStorage.getItem("session-id");
     try {
-        const result = await axios.get(`${url}person?q=${value}&v=full`, {
-            headers: {
-                Authorization: `Basic ${session_id}`
-            }
-        })
-        return result.data.results;
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-const getPatientIdentierType = async () => {
-    const session_id = sessionStorage.getItem("session-id");
-    try {
-        const result = await axios.get(`${url}patientidentifiertype?v=full`, {
-            headers: {
-                Authorization: `Basic ${session_id}`
-            }
-        })
+        const result = await axios.get(`${baseURL}person?q=${value}&v=full`, header)
         return result.data.results;
     } catch (error) {
         console.log(error)
@@ -60,15 +37,14 @@ const getPatientIdentierType = async () => {
 }
 
 const addPatient = async (data, identifiers, uuid) => {
-    const session_id = sessionStorage.getItem("session-id");
     let person_uuid = uuid;
     try {
         person_uuid === "" &&
-            await axios(`${url}person`, {
+            await axios(`${baseURL}person`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
                     Authorization: `Basic ${session_id}`,
+                    "Content-Type": "application/json",
                 },
                 data: data
             }).then(resp => {
@@ -85,11 +61,11 @@ const addPatient = async (data, identifiers, uuid) => {
                     preferred: false
                 }]
             })
-            const create_patient = await axios(`${url}patient`, {
+            const create_patient = await axios(`${baseURL}patient`, {
                 method: "POST",
                 headers: {
+                    Authorization: `Basic ${session_id}`,
                     "Content-Type": "application/json",
-                    Authorization: `Basic ${session_id}`
                 },
                 data: patient_data
             })
@@ -100,4 +76,22 @@ const addPatient = async (data, identifiers, uuid) => {
     }
 }
 
-export { GetPatient, addPatient, listEncounters, checkPerson, getPatientIdentierType }
+const getLocations = async () => {
+    try {
+        const location = await axios.get(`${baseURL}location`, header);
+        return location.data.results;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const getPatientIdentierType = async () => {
+    try {
+        const result = await axios.get(`${baseURL}patientidentifiertype`, header)
+        return result.data.results;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export { GetPatient, addPatient, listEncounters, checkPerson, getPatientIdentierType, getLocations }

@@ -1,8 +1,8 @@
 import './create.css';
-
 import { Button, FormGroup, TextInput, Select, SelectItem, Table, TableHead, TableHeader, TableRow, TableBody, TableCell, Pagination } from 'carbon-components-react';
-import { addPatient, checkPerson } from '../dashboard-resource';
+import { addPatient, checkPerson, getLocations, getPatientIdentierType } from '../dashboard-resource';
 import { useState } from 'react';
+import { DateFormat } from '../../../Constants/constant';
 
 function CreatePatient() {
     const [personName, setPersonName] = useState("");
@@ -21,32 +21,22 @@ function CreatePatient() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [submitButton, setSubmitStatus] = useState(false);
+    const [locations, setLocations] = useState([]);
+    const [patientIdentifierTypes, setPatientIdentifierTypes]=useState([]);
 
     const checkPersonExistence = (e) => {
         e.preventDefault();
         if (personName.trim() === "" || gender.trim() === "" || birthDate.trim() === "") {
             setError("All The Fields Are Required");
         } else {
+            mapResources()
             setError()
             setShowInput(false);
             setCheckButtonStatus(false);
-            let currentDate = Date.now();
-            let parsedAge = Date.parse(birthDate);
-            let convertedDate = new Date(currentDate - parsedAge);
-            let getYear = convertedDate.getUTCFullYear();
-            let age = getYear - 1970;
-            let range = (x) => {
-                let min = age - 2;
-                let max = age + 2;
-                if (x >= min && x <= max) {
-                    return x;
-                }
-            }
-
+            let age = calculateAge(birthDate);
             const result = checkPerson(personName);
             result.then(response => {
-                const results = response.filter(data => data.gender === gender && range(data.age)).map(data => {
-                    let birthdate = data.birthdate.split("T")[0];
+                const results = response.filter(data => data.gender === gender && getAgeRange(age, data.age)).map(data => {
                     return {
                         id: data.uuid,
                         uuid: data.uuid,
@@ -55,7 +45,7 @@ function CreatePatient() {
                         familyName: data.names[0].familyName,
                         age: data.age,
                         gender: data.gender,
-                        birthdate: birthdate
+                        birthdate: DateFormat(data.birthdate)
                     }
                 })
                 if (results.length === 0) {
@@ -65,6 +55,23 @@ function CreatePatient() {
                 }
 
             }).catch(error => console.log("somer errors", error));
+        }
+    }
+
+    const calculateAge = (birthDate) => {
+        let currentDate = Date.now();
+        let parsedAge = Date.parse(birthDate);
+        let convertedDate = new Date(currentDate - parsedAge);
+        let getYear = convertedDate.getUTCFullYear();
+        let age = getYear - 1970;
+        return age;
+    }
+
+    const getAgeRange = (age, result) => {
+        let min = age - 2;
+        let max = age + 2;
+        if (result >= min && result <= max) {
+            return result;
         }
     }
 
@@ -118,20 +125,10 @@ function CreatePatient() {
                         setFirstRowIndex(pageSize * (page - 1));
                     }}
                 />
-                <button onClick={displayInputs}>I cannot find the person on the list</button>
-                <button onClick={hideInputs}>Cancel</button>
+                <button onClick={() => { setRows([]); setShowInput(true) }}>I cannot find the person on the list</button>
+                <button onClick={() => { setRows([]); setShowInput(false); setCheckButtonStatus(true); }}>Cancel</button>
             </div>
         )
-    }
-
-    const displayInputs = (e) => {
-        setRows([])
-        setShowInput(true)
-    }
-    const hideInputs = (e) => {
-        setShowInput(false);
-        setRows([]);
-        setCheckButtonStatus(true)
     }
 
     const addPatientData = (e) => {
@@ -140,12 +137,35 @@ function CreatePatient() {
         setUuid(uuid);
         setPersonName(result[0].givenName, result[0].familyName, result[0].middleName);
         setGender(result[0].gender);
-        setBirthDate(result[0].birthdate.split("T")[0])
+        setBirthDate(DateFormat(result[0].birthdate))
         setRows([]);
         setShowInput(true);
     }
 
-    const addInputs = () => {
+    const mapResources = () => {
+        const location = getLocations();
+        const getIdentifierTypes= getPatientIdentierType();
+        location.then(response => {
+            let results = response.map(result => {
+                return {
+                    uuid: result.uuid,
+                    display: result.display
+                }
+            })
+            setLocations(results)
+        })
+        getIdentifierTypes.then(response =>{
+            let results = response.map(result => {
+                return {
+                    uuid: result.uuid,
+                    display: result.display
+                }
+            })
+            setPatientIdentifierTypes(results)
+        })
+    }
+
+    const addMoreInputFields = () => {
         return (
             <>
                 <TextInput onChange={(e) => setAddress(e.target.value)} type="text" name="address" id="address" placeholder="Address" labelText="Address"></TextInput>
@@ -155,11 +175,19 @@ function CreatePatient() {
                 <TextInput onChange={(e) => setIdentifier(e.target.value)} type="text" name="identifier" id="identifier" placeholder="Identifier" labelText="Identifier *"></TextInput>
                 <Select onChange={(e) => setIdentifierType(e.target.value)} name="identifierType" id="identifierType" labelText="Identifier Type *">
                     <SelectItem text="Choose Identifier Type" />
-                    <SelectItem value="Dummy Identifier" text="Dummy Identifier" />
+                    {
+                        patientIdentifierTypes.map(result => (
+                            <SelectItem value={result.uuid} key={result.uuid} text={result.display} />
+                        ))
+                    }
                 </Select>
                 <Select onChange={(e) => setIdentifierLocation(e.target.value)} name="identifierLocation" id="identifierLocation" labelText="Identifier Location *">
                     <SelectItem text="Choose Identifier Location" />
-                    <SelectItem value="Location-1" text="Location-1" />
+                    {
+                        locations.map(result => (
+                            <SelectItem value={result.uuid} key={result.uuid} text={result.display} />
+                        ))
+                    }
                 </Select>
                 <Button type="submit" disabled={submitButton}>Add Patient</Button>
                 <p className="success">{success}</p>
@@ -208,7 +236,7 @@ function CreatePatient() {
                         setSuccess("")
                     }, 3000);
                 }
-            }).catch(error=>console.log(error.message))
+            }).catch(error => console.log(error.message))
         } else {
             setError("All fields are required")
         }
@@ -233,7 +261,7 @@ function CreatePatient() {
                     }
                     {
                         showInput &&
-                        addInputs()
+                        addMoreInputFields()
                     }
                     {
                         rows.length !== 0 &&
