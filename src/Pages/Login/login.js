@@ -57,7 +57,7 @@ function Login() {
           <TextInput placeholder="Username" onChange={handleUsernameChange} name="username" id="username" type="text" labelText="Username"></TextInput>
           <TextInput placeholder="Password" onChange={handlePasswordChange} name="pass" id="pass" type="password" labelText="Password"></TextInput>
         </FormGroup>
-        <p className="error">{error}</p>
+        <p className="error" data-testid="error-message">{error}</p>
         <Button className="login-btn" type="submit" disabled={username && pass ? false : true}>Login</Button>
       </form>
     </div>
