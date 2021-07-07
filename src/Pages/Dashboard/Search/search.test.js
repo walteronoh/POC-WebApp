@@ -1,10 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import axios from "axios";
+import { mockGetPatient, mockListEncounter } from "../../../Mocks/mock";
 import { GetPatient, listEncounters } from "../dashboard-resource";
 import PatientSearch from "./search";
-
-jest.mock("axios");
 
 describe("Testing Patient Search Component",()=>{
     test("Testing Search Labels",()=>{
@@ -18,31 +16,19 @@ describe("Testing Patient Search Component",()=>{
 })
 
 describe("Testing search patient api endpoint",()=>{
-    it("Testing the GetPatient component", async() => {
+    test("Testing the GetPatient component", async() => {
         render(<PatientSearch/>);
-        axios.get.mockResolvedValue({
-            data:{
-                results:{
-                    users:"Test"
-                }
-            }
-        });
+        mockGetPatient();
         const result= await GetPatient();
-        expect(result.users).toEqual("Test");
+        expect(result.data.users).toEqual("Test");
     });   
 });
 
 describe("Testing get encounter api endpoint", ()=>{
-    it("Testing the list Encounters component", async() => {
+    test("Testing the list Encounters component", async() => {
         render(<PatientSearch/>);
-        axios.get.mockResolvedValue({
-            data:{
-                results:{
-                    encounter: "Encounter"
-                }
-            }
-        });
+        mockListEncounter()
         const result= await listEncounters();
-        expect(result.encounter).toEqual("Encounter");
+        expect(result.data.encounter).toEqual("Encounter");
     });
 })

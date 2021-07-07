@@ -11,7 +11,7 @@ let header = {
 const GetPatient = async (value) => {
     try {
         const result = await axios.get(`${baseURL}patient?q=${value}&v=full&limit=10`, header);
-        return result.data.results;
+        return result;
     } catch (error) {
         console.log(error.message)
     }
@@ -20,7 +20,7 @@ const GetPatient = async (value) => {
 const listEncounters = async (uuid) => {
     try {
         const result = await axios.get(`${baseURL}encounter?patient=${uuid}&v=full`, header);
-        return result.data.results;
+        return result;
     } catch (error) {
         console.log(error);
     }
@@ -30,7 +30,7 @@ const listEncounters = async (uuid) => {
 const checkPerson = async (value) => {
     try {
         const result = await axios.get(`${baseURL}person?q=${value}&v=full`, header)
-        return result.data.results;
+        return result;
     } catch (error) {
         console.log(error)
     }
@@ -79,19 +79,31 @@ const addPatient = async (data, identifiers, uuid) => {
 const getLocations = async () => {
     try {
         const location = await axios.get(`${baseURL}location`, header);
-        return location.data.results;
+        return location;
     } catch (error) {
         console.log(error);
     }
 }
 
+const dummyPost =async(patient_data) =>{
+    const create_patient = await axios(`${baseURL}patient`, {
+        method: "POST",
+        headers: {
+            Authorization: `Basic ${session_id}`,
+            "Content-Type": "application/json",
+        },
+        data: patient_data
+    })
+    return create_patient;
+}
+
 const getPatientIdentierType = async () => {
     try {
         const result = await axios.get(`${baseURL}patientidentifiertype`, header)
-        return result.data.results;
+        return result;
     } catch (error) {
         console.log(error)
     }
 }
 
-export { GetPatient, addPatient, listEncounters, checkPerson, getPatientIdentierType, getLocations }
+export { GetPatient, addPatient, listEncounters, checkPerson, getPatientIdentierType, getLocations , dummyPost}

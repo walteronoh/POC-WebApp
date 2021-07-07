@@ -1,11 +1,14 @@
 import { render,screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { mockCreatePatient, mockPatientSearch } from "../../Mocks/mock";
 import CreatePatient from "./Create/create";
 import Dashboard from "./dashboard";
 import PatientSearch from "./Search/search";
 
 jest.mock("./Search/search");
 jest.mock("./Create/create");
+jest.mock("../Login/login");
+
 describe("Testing Dashboard Component", () => {
    
     test("Testing Text Display", () => {
@@ -20,31 +23,14 @@ describe("Testing Dashboard Component", () => {
         expect(logout_text).toBeInTheDocument();
     });
     test("Testing if search patient button renders PatientSearch module onClick", () => {
-        //render(<Dashboard/>);
-        //const search_route = screen.getByRole("link",{name:/Search Patient/i});
-        //const create_route= screen.getByRole("link",{name:/Create Patient/i});
-
         PatientSearch.mockImplementation(() => <div>search Form</div>);
         CreatePatient.mockImplementation(()=> <div>Create Patient Form</div>); 
 
-        render(
-        
-            <Dashboard/>
-        
-        );
+        render(<Dashboard/>);
         userEvent.click(screen.getByRole("link",{name:/Search Patient/i}));
         expect(screen.getByText("search Form")).toBeInTheDocument();
-        //expect(getByText("search Form")).toBeInTheDocument();
-        // userEvent.click(create_route);
-        // expect(getByText("Create Patient Form")).toBeInTheDocument();
+        expect(screen.getByText("search Form")).toBeInTheDocument();
+        userEvent.click(screen.getByRole("link",{name:/Create Patient/i}));
+        expect(screen.getByText("Create Patient Form")).toBeInTheDocument();
     });
 })
-
-
-// describe("sometest",()=>{
-//     test("something else", ()=>{
-//         render(<Dashboard/>);
-//         //const names= screen.getByRole("search-route");
-    
-//     })
-// })

@@ -6,7 +6,6 @@ import React from 'react';
 import getUser from './login-resource';
 import { useHistory } from 'react-router-dom';
 
-
 const errors = {
   emptyErr: "Both Fields Are Required",
   loginErr: "Invalid Login"

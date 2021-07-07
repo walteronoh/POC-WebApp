@@ -22,7 +22,7 @@ function CreatePatient() {
     const [success, setSuccess] = useState("");
     const [submitButton, setSubmitStatus] = useState(false);
     const [locations, setLocations] = useState([]);
-    const [patientIdentifierTypes, setPatientIdentifierTypes]=useState([]);
+    const [patientIdentifierTypes, setPatientIdentifierTypes] = useState([]);
 
     const checkPersonExistence = (e) => {
         e.preventDefault();
@@ -35,26 +35,29 @@ function CreatePatient() {
             setCheckButtonStatus(false);
             let age = calculateAge(birthDate);
             const result = checkPerson(personName);
-            result.then(response => {
-                const results = response.filter(data => data.gender === gender && getAgeRange(age, data.age)).map(data => {
-                    return {
-                        id: data.uuid,
-                        uuid: data.uuid,
-                        givenName: data.names[0].givenName,
-                        middleName: data.names[0].middleName,
-                        familyName: data.names[0].familyName,
-                        age: data.age,
-                        gender: data.gender,
-                        birthdate: DateFormat(data.birthdate)
+            if (result.length > 0) {
+                const data= result.data.results;
+                data.then(response => {
+                    const results = response.filter(data => data.gender === gender && getAgeRange(age, data.age)).map(data => {
+                        return {
+                            id: data.uuid,
+                            uuid: data.uuid,
+                            givenName: data.names[0].givenName,
+                            middleName: data.names[0].middleName,
+                            familyName: data.names[0].familyName,
+                            age: data.age,
+                            gender: data.gender,
+                            birthdate: DateFormat(data.birthdate)
+                        }
+                    })
+                    if (results.length === 0) {
+                        setShowInput(true)
+                    } else {
+                        setRows(results);
                     }
-                })
-                if (results.length === 0) {
-                    setShowInput(true)
-                } else {
-                    setRows(results);
-                }
 
-            }).catch(error => console.log("somer errors", error));
+                }).catch(error => console.log("somer errors", error));
+            }
         }
     }
 
@@ -144,25 +147,29 @@ function CreatePatient() {
 
     const mapResources = () => {
         const location = getLocations();
-        const getIdentifierTypes= getPatientIdentierType();
-        location.then(response => {
-            let results = response.map(result => {
-                return {
-                    uuid: result.uuid,
-                    display: result.display
-                }
-            })
-            setLocations(results)
-        })
-        getIdentifierTypes.then(response =>{
-            let results = response.map(result => {
-                return {
-                    uuid: result.uuid,
-                    display: result.display
-                }
-            })
-            setPatientIdentifierTypes(results)
-        })
+        const getIdentifierTypes = getPatientIdentierType();
+        if(location.length > 0){
+            location.data.results.then(response => {
+                let results = response.map(result => {
+                    return {
+                        uuid: result.uuid,
+                        display: result.display
+                    }
+                })
+                setLocations(results)
+            });
+        }
+        if(getIdentifierTypes.length > 0){
+            getIdentifierTypes.data.results.then(response => {
+                let results = response.map(result => {
+                    return {
+                        uuid: result.uuid,
+                        display: result.display
+                    }
+                })
+                setPatientIdentifierTypes(results)
+            });
+        }
     }
 
     const addMoreInputFields = () => {

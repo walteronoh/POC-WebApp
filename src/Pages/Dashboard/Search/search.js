@@ -22,18 +22,21 @@ function PatientSearch() {
         setInput(e.target.value);
         if (input.length > 2) {
             const result = GetPatient(input);
-            result.then(resp => {
-                if (resp.length > 0) {
-                    setResponse(true)
-                    let data = HandleSearchResponse(resp);
-                    setRows(data);
-                    setError()
-                } else {
-                    setError("No user found");
-                }
-            }).catch(error => {
-                console.log(error.message);
-            })
+            if (result.length > 0) {
+                const data = result.data.results;
+                data.then(resp => {
+                    if (resp.length > 0) {
+                        setResponse(true)
+                        let data = HandleSearchResponse(resp);
+                        setRows(data);
+                        setError()
+                    } else {
+                        setError("No user found");
+                    }
+                }).catch(error => {
+                    console.log(error.message);
+                });
+            }
         } else {
             setResponse()
         }
@@ -111,20 +114,22 @@ function PatientSearch() {
     const getEncounter = (e) => {
         const patient_id = e.target.attributes.getNamedItem('data-uuid').value;
         const result = listEncounters(patient_id);
-        result.then(resp => {
-            if (resp.length === 0) {
-                setError(`No Encounters Found For this UUID : ${patient_id}`);
-            } else {
+        if (result.length > 0) {
+            const data = result.data.results;
+            data.then(resp => {
                 setOpen(true);
                 let data = handleEncounters(resp);
                 let obs = handleObservation(resp);
                 setObsRows(obs.reverse());
                 setEncounters(data.reverse());
                 dispEncounter(true);
-            }
-        }).catch(error => {
-            console.log(error)
-        })
+
+            }).catch(error => {
+                console.log(error)
+            });
+        } else {
+            setError(`No Encounters Found For this UUID : ${patient_id}`);
+        }
     }
 
 
@@ -300,7 +305,7 @@ function PatientSearch() {
                         preventCloseOnClickOutside
                         passiveModal
                         open={open}
-                        onRequestClose={() => { setOpen(false); setRowOneIndex(0);}}>
+                        onRequestClose={() => { setOpen(false); setRowOneIndex(0); }}>
                         {displayEncounter()}
                     </Modal>
                     <Modal
@@ -308,7 +313,7 @@ function PatientSearch() {
                         preventCloseOnClickOutside
                         passiveModal
                         open={obsStatus}
-                        onRequestClose={() => { setObsStatus(false); setObsRowIndex(0);}}>
+                        onRequestClose={() => { setObsStatus(false); setObsRowIndex(0); }}>
                         {displayObs()}
                     </Modal>
                 </>
